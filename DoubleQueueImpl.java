@@ -113,10 +113,8 @@ public class DoubleQueueImpl implements DoubleQueue {
 
 	public void printQueue(PrintStream stream) {
         stream.print("Queue: [ ");
-        int i = front;
-        while (i != positionAfter(back)) {
+        for (int i = front; i != positionAfter(back); i = positionAfter(i)) {
             stream.print(queueContents[i] + ", ");
-            i = positionAfter[i];
         }
         stream.print("]");
     }
