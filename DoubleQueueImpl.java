@@ -1,130 +1,80 @@
 
 
 import java.io.PrintStream;
-import java.util.NoSuchElementException; 
+import java.util.NoSuchElementException;
 
-/**
- * Implementation of Queue using Array structure
- *
- */
-public class DoubleQueueImpl implements DoubleQueue {
+public class DoubleQueueImpl<T> {
+    private Node<T> head;
+    private Node<T> tail;
+    private int size;
 
-    private double[] queueContents; // the array to hold the queue data
+    private class Node<E> {
+        E data;
+        Node<E> next;
 
-    private int size; // number of enqueued items
+        public Node(E data) {
+            this.data = data;
+            this.next = null;
+        }
+    }
 
-    private int front; // array position of the front of the queue
-    private int back; // array position of the back of the queue
-
-    private static final int DEFAULT_CAPACITY = 2; // the default queue capacity
-    private static final int AUTOGROW_SIZE = 2; // the autogrow size after reaching full capacity
-
-    /**
-     * Initialize the queue
-     */
     public DoubleQueueImpl() {
-        queueContents = new double[DEFAULT_CAPACITY];
-        front = 0;
-        back = -1;
+        head = null;
+        tail = null;
         size = 0;
     }
 
-    /**
-     * Insert a new item into the queue.
-     *
-     * @param item the item to insert.
-     */
-    @Override
-    public void put(double item) {
-        if (size == queueContents.length)
-            growQueue();
-
-        back = positionAfter(back);
-        queueContents[back] = item;
-
-        size += 1;
+    public void put(T item) {
+        Node<T> newNode = new Node<>(item);
+        if (head == null) {
+            head = newNode;
+            tail = newNode;
+        } else {
+            tail.next = newNode;
+            tail = newNode;
+        }
+        size++;
     }
 
-    /**
-     * Return and remove the least recently inserted item
-     * from the queue.
-     *
-     * @return the least recently inserted item in the queue.
-     * @throws NoSuchElementException if the queue is empty.
-     */
-    @Override
-    public double get() throws NoSuchElementException {
-        if (isEmpty())
-            throw new NoSuchElementException();
-
-        double element = queueContents[front];
-        front = positionAfter(front);
-        size -= 1;
-
-        return element;
+    public T get() {
+        if (head == null) {
+            throw new NoSuchElementException("Queue is empty");
+        }
+        T value = head.data;
+        head = head.next;
+        if (head == null) {
+            tail = null;
+        }
+        size--;
+        return value;
     }
 
-    /**
-     * Test if the queue is logically empty.
-     *
-     * @return true if empty, false otherwise.
-     */
-    @Override
+    public T peek() {
+        if (head == null) {
+            throw new NoSuchElementException("Queue is empty");
+        }
+        return head.data;
+    }
+
     public boolean isEmpty() {
         return size == 0;
     }
 
-    /**
-     * Returns the next position in queue, after "current"
-     *
-     * @param current The current position
-     * @return the position in queue after current
-     */
-    private int positionAfter(int current) {
-        return (current + 1) % queueContents.length;
-
-    }
-
-
-    private void growQueue() {
-        double[] newContents = new double[queueContents.length + AUTOGROW_SIZE];
-
-        int current = front;
-
-        for (int i = 0; i < size; ++i) {
-            newContents[i] = queueContents[current];
-            current = positionAfter(current);
+    public void printQueue(PrintStream stream) {
+        Node<T> current = head;
+        stream.print("Queue: [");
+        while (current != null) {
+            stream.print(current.data);
+            if (current.next != null) {
+                stream.print(", ");
+            }
+            current = current.next;
         }
-        queueContents = newContents;
-        front = 0;
-        back = size - 1;
+        stream.println("]");
     }
 
-	/**
- 	 * return the oldest item of the queue
- 	 * @return oldest item of the queue
-	 * @throws NoSuchElementException if the queue is empty
-	 */
-    public double peek() throws NoSuchElementException {
-        if (isEmpty())
-            throw new NoSuchElementException();
-        return queueContents[front];
-    }
-
-	public void printQueue(PrintStream stream) {
-        stream.print("Queue: [ ");
-        for (int i = front; i != positionAfter(back); i = positionAfter(i)) {
-            stream.print(queueContents[i] + ", ");
-        }
-        stream.print("]");
-    }
-
-	/**
-	 * return the size of the queue, 0 if it is empty
-	 * @return number of elements in the queue
-	 */
-	public int size() {
+    public int size() {
         return size;
     }
-
 }
+
