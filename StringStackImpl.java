@@ -1,83 +1,70 @@
 import java.io.PrintStream;
 import java.util.NoSuchElementException;
 
-public class StringStackImpl implements StringStack {
-    private String[] StackContents;
+public class StringStackImpl<T> implements StringStack<T> {
+
+    private Node<T> top;
     private int size;
-    private int top;
 
-    private static final int DEFAULT_CAPACITY = 2; 
-    private static final int AUTOGROW_SIZE = 2;
-    
+    private static class Node<T> {
+        T data;
+        Node<T> next;
+
+        Node(T data) {
+            this.data = data;
+            this.next = null;
+        }
+    }
+
     public StringStackImpl() {
-        StackContents = new String[DEFAULT_CAPACITY];
+        top = null;
         size = 0;
-        top = -1;
-        
     }
 
-    /**
-	 * @return true if the stack is empty
-	 */
-	public boolean isEmpty() {
-        return size == 0;
+    @Override
+    public boolean isEmpty() {
+        return top == null;
     }
 
-    public void GrowStack() {
-        String[] newContents = new String[StackContents.length + AUTOGROW_SIZE];
-
-        for (int i = 0; i < size; ++i) {
-            newContents[i] = StackContents[i];
-        }
-        StackContents = newContents;
-    }
-
-    public void push(String item) {
-        if (size = StackContents.length)
-            GrowStack();
-        top++;
-        StackContents[top] = item;
+    @Override
+    public void push(T item) {
+        Node<T> newNode = new Node<>(item); // Δημιουργία νέου κόμβου
+        newNode.next = top;
+        top = newNode;
         size++;
-
-    }
-	/**
-	 * remove and return the item on the top of the stack
-	 * @return the item on the top of the stack
-	 * @throws a NoSuchElementException if the stack is empty
-	 */
-	public String pop() throws NoSuchElementException {
-        if (isEmpty())
-            throw new NoSuchElementException();
-        String element = StackContents[top];
-        top--;
-        return element;
     }
 
-    /**
-	 * return without removing the item on the top of the stack
-	 * @return the item on the top of the stack
-	 * @throws a NoSuchElementException if the stack is empty
-	 */
-	public String peek() throws NoSuchElementException {
-        if (isEmpty())
-            throw new NoSuchElementException();
-        return StackContents[top];
+    @Override
+    public T pop() {
+        if (isEmpty()) {
+            throw new NoSuchElementException("Stack is empty");
+        }
+        T poppedItem = top.data;
+        top = top.next;
+        size--;
+        return poppedItem;
     }
 
-	public void printStack(PrintStream stream) {
-        stream.print("STACK\n");
-        for (int i = top; i > 0; --i) {
-            stream.print(StackContents[i]);
-            stream.print("\n");
+    @Override
+    public T peek() {
+        if (isEmpty()) {
+            throw new NoSuchElementException("Stack is empty");
+        }
+        return top.data;
+    }
+
+    @Override
+    public void printStack(PrintStream stream) {
+        Node<T> current = top;
+        stream.println("Stack contents:");
+        while (current != null) {
+            stream.println(current.data);
+            current = current.next;
         }
     }
 
- 	/**
-     * return the size of the stack, 0 if it is empty
-	 * @return the number of items currently in the stack
-	 */
-	public int size() {
+    @Override
+    public int size() {
         return size;
     }
-
 }
